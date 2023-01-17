@@ -14,6 +14,8 @@ Start location, destination, link to website,
 
 The data from the websites is scraped and saved into a variable.
 
+! Scraoe the data in chunks to make the lookup faster !
+
 ## Output
 
 Variable is filled with data.

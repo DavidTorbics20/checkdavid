@@ -12,7 +12,11 @@ Start location, destination, link to website,
 
 ## Internal state chage 
 
-The data that was scraped from the website is saved into a table wiht a timestamp and unique id.
+The data that was scraped from the website is saved 
+into a table wiht a timestamp and unique id.
+
+! As soon as some scraped data exists insert into 
+table to make it seem smoother !
 
 ## Output
 
