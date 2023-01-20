@@ -14,7 +14,7 @@ class CityCollector:
         self.engine = sql.create_engine("sqlite:///database/cities_around_" +
                                         "the_world", echo=True)
         metadata = sql.MetaData()
-        self.emp = sql.Table('cities_and_countries', metadata,
+        self.emp = sql.Table('cities_and_countries.db', metadata,
                              sql.Column("Id", sql.Integer,
                                         sql.Sequence('seq_reg_id',
                                                      start=1,
