@@ -7,6 +7,7 @@ import os
 import re
 import urllib.request
 from datetime import datetime
+import requests
 
 import cfscrape
 import requests
@@ -18,19 +19,16 @@ class Downloader():
         self.url = url
 
     def get_page_content(self):
-        scraper = cfscrape.create_scraper()
-        response = scraper.get(self.url)
-        soup = BS(response.content, 'html.parser')
+        # scraper = cfscrape.create_scraper()
+        response = requests.get(self.url)
+        # print(response.content)
+        soup = BS(response.text, 'html.parser')
+        # print(soup.prettify())
 
         alldivs = self.find_divs(soup)
         for div in alldivs:
             print(div)
 
     def find_divs(self, soup):
-        mydivs = soup.find_all("div", {"class": "ResultCardcommonstyled_" +
-                                                "_ResultCardWrapperCommo" +
-                                                "n-sc-151jp81-1 ResultCa" +
-                                                "rdstyled__ResultCardWra" +
-                                                "pper-sc-vsw8q3-1 kHQVIh" +
-                                                " hXywJo"})
+        mydivs = soup.find_all("time")  # noqa: E501
         return mydivs
