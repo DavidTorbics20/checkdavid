@@ -1,3 +1,6 @@
 sqlalchemy
 flake8
-cfscrape
+selenium
+tkinter
+bs4
+lxml

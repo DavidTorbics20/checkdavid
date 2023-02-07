@@ -1,3 +1,10 @@
+# Personal ignore
+database/
+database/*
+webpage.html
+bruh*
+bruh5.html
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
