@@ -89,7 +89,8 @@ class GUI():
         item_name.grid(column=3, row=2, columnspan=2, sticky=tk.NSEW, padx=5, pady=5)
 
         # The buttons to cycle the the category left and right
-        next_page_btn = tk.Button(self.root, text="Next page", command=self.change_shown_category,
+        next_page_btn = tk.Button(self.root, text="Next page",
+                                  command=self.get_next_items,
                                   width=15, height=3)
         next_page_btn.grid(column=5, row=2, sticky=tk.W, padx=5, pady=5)
         previouse_page_btn = tk.Button(self.root, text="Previouse page",
@@ -168,8 +169,9 @@ class GUI():
 
         while True:
             if not downloader_task.is_alive():
-                current_page_values = self.table_manager.get_current_page_values()
-                self.show_items_from_db(current_page_values)
+                current_page_values = self.table_manager.get_current_page_values(1)
+                if current_page_values != []:
+                    self.show_items_from_db(current_page_values)
                 break
 
     def update_btn_function(self):
@@ -183,8 +185,9 @@ class GUI():
 
         # or just do start_pos += 7
         self.starting_pos += 7
-        current_page_values = self.table_manager.get_current_page_values()
-        self.show_items_from_db(current_page_values)
+        current_page_values = self.table_manager.get_current_page_values(self.starting_pos)
+        if current_page_values != []:
+            self.show_items_from_db(current_page_values)
 
     def get_previous_items(self):
         # basically do this
@@ -194,13 +197,15 @@ class GUI():
         self.starting_pos -= 7
         if self.starting_pos < 1:
             self.starting_pos = 1
-        current_page_values = self.table_manager.get_current_page_values()
-        self.show_items_from_db(current_page_values)
+        current_page_values = self.table_manager.get_current_page_values(self.starting_pos)
+        if current_page_values != []:
+            self.show_items_from_db(current_page_values)
 
     def change_shown_category(self, *args):
         self.table_manager = TM(self.show_category())
-        current_page_values = self.table_manager.get_current_page_values()
-        self.show_items_from_db(current_page_values)
+        current_page_values = self.table_manager.get_current_page_values(1)
+        if current_page_values != []:
+            self.show_items_from_db(current_page_values)
 
 
 if __name__ == "__main__":

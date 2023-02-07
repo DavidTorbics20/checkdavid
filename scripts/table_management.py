@@ -126,7 +126,8 @@ class TableManagement():
         entries = self.session.query(Entries).filter_by(category_id=current_category)
         self.session.query(ActiveEntries).delete()
         for entry in entries:
-            active_entry = ActiveEntries(item_name=entry.item_name,
+            active_entry = ActiveEntries(category_id=entry.category_id,
+                                         item_name=entry.item_name,
                                          price=entry.price,
                                          price_per_slot=entry.price_per_slot,
                                          h_change=entry.h_change,
@@ -135,13 +136,21 @@ class TableManagement():
                                          trader_name=entry.trader_name)
             self.session.add(active_entry)
             self.session.commit()
-            print(entry)
 
-    def get_current_page_values(self, starting_pos=1):
+    def get_current_page_values(self, starting_pos):
         current_values = []
-        self.create_active_entries()
-
         category_id = self.get_category_id()
+
+        active_category = self.session.query(ActiveEntries) \
+            .filter_by(category_id=category_id).first()
+
+        # this is unnecessary
+        if active_category is not None:
+            active_category = active_category.category_id
+
+        if category_id != active_category:
+            self.create_active_entries()
+
         database = self.session.query(Entries).filter_by(category_id=category_id).first()
         if database is None:
             return current_values
@@ -154,6 +163,7 @@ class TableManagement():
         for i in range(0, 7):
             entry = self.session.query(ActiveEntries).filter_by(id=starting_pos + i).first()
             if entry is not None:
+                print(entry.item_name)
                 current_values.append(entry)
 
         return current_values

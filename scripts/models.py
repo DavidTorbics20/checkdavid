@@ -38,6 +38,7 @@ class ActiveEntries(Base):
     __tablename__ = "ActiveEntries"
 
     id = Column("id", Integer, primary_key=True)
+    category_id = Column("category_id", Integer, ForeignKey(Categories.id))
     item_name = Column("item name", String)
     # for the time being just use some random image here
     # - not that from tarkov-market
