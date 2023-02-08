@@ -20,6 +20,7 @@ class GUI():
                                 10, 11, 12, 13, 14, 15, 16), weight=0)
 
         self.clicked = tk.StringVar(self.root)
+        self.user_input = tk.StringVar(self.root)
 
         self.options = [
             "Keys",
@@ -42,7 +43,7 @@ class GUI():
             "Repair"
         ]
 
-        self.starting_pos = 0
+        self.starting_pos = 1
 
     def show_category(self):
         category = self.clicked.get()
@@ -50,10 +51,10 @@ class GUI():
         return category
 
     def draw_widgets(self):
-        input_text = ""
+        pages = ""
 
         # Input field
-        username_label = ttk.Entry(self.root, textvariable=input_text, font=("", 24))
+        username_label = ttk.Entry(self.root, textvariable=self.user_input, font=("", 24))
         username_label.grid(column=0, row=0, columnspan=4, sticky=tk.EW, padx=60, pady=5)
 
         # Dropdown menu for to choose the category
@@ -84,9 +85,9 @@ class GUI():
         bookmark_btn.grid(column=7, row=0, sticky=tk.W, padx=5, pady=5)
 
         # The Label for the current page counter
-        item_name = tk.Label(self.root, text="(Items XX to YY) out of (ZZ Total)",
-                             background='pink')
-        item_name.grid(column=3, row=2, columnspan=2, sticky=tk.NSEW, padx=5, pady=5)
+        self.pages = tk.Label(self.root, text=pages,
+                              background='pink')
+        self.pages.grid(column=3, row=2, columnspan=2, sticky=tk.NSEW, padx=5, pady=5)
 
         # The buttons to cycle the the category left and right
         next_page_btn = tk.Button(self.root, text="Next page",
@@ -169,9 +170,13 @@ class GUI():
 
         while True:
             if not downloader_task.is_alive():
-                current_page_values = self.table_manager.get_current_page_values(1)
+                current_page_values = self.table_manager \
+                    .get_current_page_values(1,
+                                             self.user_input.get())
                 if current_page_values != []:
                     self.show_items_from_db(current_page_values)
+                    self.pages.config(text=str(self.starting_pos) + " >-< " +
+                                      str(self.starting_pos + 7))
                 break
 
     def update_btn_function(self):
@@ -185,9 +190,12 @@ class GUI():
 
         # or just do start_pos += 7
         self.starting_pos += 7
-        current_page_values = self.table_manager.get_current_page_values(self.starting_pos)
+        current_page_values = self.table_manager.get_current_page_values(self.starting_pos,
+                                                                         self.user_input.get())
         if current_page_values != []:
             self.show_items_from_db(current_page_values)
+            self.pages.config(text=str(str(self.starting_pos) + " >-< " +
+                                       str(self.starting_pos + 7)))
 
     def get_previous_items(self):
         # basically do this
@@ -197,15 +205,22 @@ class GUI():
         self.starting_pos -= 7
         if self.starting_pos < 1:
             self.starting_pos = 1
-        current_page_values = self.table_manager.get_current_page_values(self.starting_pos)
+        current_page_values = self.table_manager.get_current_page_values(self.starting_pos,
+                                                                         self.user_input.get())
         if current_page_values != []:
             self.show_items_from_db(current_page_values)
+            self.pages.config(text=str(str(self.starting_pos) + " >-< " +
+                                       str(self.starting_pos + 7)))
 
     def change_shown_category(self, *args):
+        self.starting_pos = 0
         self.table_manager = TM(self.show_category())
-        current_page_values = self.table_manager.get_current_page_values(1)
+        current_page_values = self.table_manager.get_current_page_values(1,
+                                                                         self.user_input.get())
         if current_page_values != []:
             self.show_items_from_db(current_page_values)
+            self.pages.config(text=str(str(self.starting_pos) + " >-< " +
+                                       str(self.starting_pos + 7)))
 
 
 if __name__ == "__main__":

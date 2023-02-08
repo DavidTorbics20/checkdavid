@@ -137,9 +137,11 @@ class TableManagement():
             self.session.add(active_entry)
             self.session.commit()
 
-    def get_current_page_values(self, starting_pos):
+    def get_current_page_values(self, starting_pos, item_name_snippet):
         current_values = []
         category_id = self.get_category_id()
+
+        starting_pos -= 1
 
         active_category = self.session.query(ActiveEntries) \
             .filter_by(category_id=category_id).first()
@@ -156,14 +158,25 @@ class TableManagement():
             return current_values
 
         # this_category_id = self.get_category_id()
+        max_entries_b = self.session.query(ActiveEntries) \
+            .filter(ActiveEntries.id == starting_pos + 1,
+                    ActiveEntries.item_name.like(item_name_snippet)).first()
+        print("####################################### " + str(max_entries_b))
+
+        # this_category_id = self.get_category_id()
         max_entries = self.session.query(ActiveEntries).count()
         if starting_pos > max_entries:
-            starting_pos = max_entries
+            starting_pos = max_entries - 7
 
-        for i in range(0, 7):
-            entry = self.session.query(ActiveEntries).filter_by(id=starting_pos + i).first()
+        item_name_snippet = str("%" + item_name_snippet + "%")
+        counter = 0
+
+        while current_values.__len__() < 7 and starting_pos + counter < max_entries:
+            entry = self.session.query(ActiveEntries) \
+                .filter(ActiveEntries.id == starting_pos + counter,
+                        ActiveEntries.item_name.like(item_name_snippet)).first()
             if entry is not None:
-                print(entry.item_name)
                 current_values.append(entry)
+            counter += 1
 
         return current_values
