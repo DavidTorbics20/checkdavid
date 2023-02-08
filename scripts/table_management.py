@@ -1,7 +1,5 @@
 """Insert the values that were downloaded."""
 
-import threading
-
 import sqlalchemy as sql
 from downloader import Downloader
 from models import ActiveEntries, Base, Categories, Entries
@@ -18,14 +16,6 @@ class TableManagement():
 
         Session = sessionmaker(bind=engine)
         self.session = Session()
-
-        # This in a sepparate thread.
-        # downloader = Downloader
-        # for category in options:
-        #     downloader = Downloader(category.lower().replace(" ", "_"))
-        #     downloader.get_page_content()
-        #     extracted_valued = downloader.extract_values()
-        #     downloader.get_values_from_extraction(extracted_valued)
 
     def search_for_items(self):
         """Returns the data from the website and save it into a file."""
@@ -139,37 +129,30 @@ class TableManagement():
 
     def get_current_page_values(self, starting_pos, item_name_snippet):
         current_values = []
-        category_id = self.get_category_id()
-
         starting_pos -= 1
+        item_name_snippet = str("%" + item_name_snippet + "%")
+        counter = 0
+
+        category_id = self.get_category_id()
 
         active_category = self.session.query(ActiveEntries) \
             .filter_by(category_id=category_id).first()
 
-        # this is unnecessary
+        # At first active_category is always None so I have to do it separately
         if active_category is not None:
             active_category = active_category.category_id
-
         if category_id != active_category:
             self.create_active_entries()
-
         database = self.session.query(Entries).filter_by(category_id=category_id).first()
         if database is None:
             return current_values
 
         # this_category_id = self.get_category_id()
-        max_entries_b = self.session.query(ActiveEntries) \
-            .filter(ActiveEntries.id == starting_pos + 1,
-                    ActiveEntries.item_name.like(item_name_snippet)).first()
-        print("####################################### " + str(max_entries_b))
+        max_entries = self.session.query(ActiveEntries) \
+            .filter(ActiveEntries.item_name.like(item_name_snippet)).count()
 
-        # this_category_id = self.get_category_id()
-        max_entries = self.session.query(ActiveEntries).count()
         if starting_pos > max_entries:
             starting_pos = max_entries - 7
-
-        item_name_snippet = str("%" + item_name_snippet + "%")
-        counter = 0
 
         while current_values.__len__() < 7 and starting_pos + counter < max_entries:
             entry = self.session.query(ActiveEntries) \

@@ -1,6 +1,6 @@
-# User story look up flights.
+# User story look up items.
 
-Get the flight infos from the internet with webscraping.
+Get the item infos from the internet with webscraping.
 
 ## Actors 
 
@@ -8,7 +8,7 @@ Get the flight infos from the internet with webscraping.
 
 ## Input
 
-Start location, destination, link to website, 
+Category, URL 
 
 ## Internal state chage 
 

@@ -49,7 +49,6 @@ class ActiveEntries(Base):
     d_change = Column("day change", String)
     trader_price = Column("trader price", String)
     trader_name = Column("trader name", String)
-    # bring bach the bookmarked column
 
 
 class Bookmarked(Base):

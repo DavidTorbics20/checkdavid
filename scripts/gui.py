@@ -176,7 +176,7 @@ class GUI():
                 if current_page_values != []:
                     self.show_items_from_db(current_page_values)
                     self.pages.config(text=str(self.starting_pos) + " >-< " +
-                                      str(self.starting_pos + 7))
+                                      str(self.starting_pos + 6))
                 break
 
     def update_btn_function(self):
@@ -194,8 +194,8 @@ class GUI():
                                                                          self.user_input.get())
         if current_page_values != []:
             self.show_items_from_db(current_page_values)
-            self.pages.config(text=str(str(self.starting_pos) + " >-< " +
-                                       str(self.starting_pos + 7)))
+            self.pages.config(text=str(self.starting_pos) + " >-< " +
+                              str(self.starting_pos + 6))
 
     def get_previous_items(self):
         # basically do this
@@ -209,18 +209,18 @@ class GUI():
                                                                          self.user_input.get())
         if current_page_values != []:
             self.show_items_from_db(current_page_values)
-            self.pages.config(text=str(str(self.starting_pos) + " >-< " +
-                                       str(self.starting_pos + 7)))
+            self.pages.config(text=str(self.starting_pos) + " >-< " +
+                              str(self.starting_pos + 6))
 
     def change_shown_category(self, *args):
-        self.starting_pos = 0
+        self.starting_pos = 1
         self.table_manager = TM(self.show_category())
         current_page_values = self.table_manager.get_current_page_values(1,
                                                                          self.user_input.get())
         if current_page_values != []:
             self.show_items_from_db(current_page_values)
-            self.pages.config(text=str(str(self.starting_pos) + " >-< " +
-                                       str(self.starting_pos + 7)))
+            self.pages.config(text=str(self.starting_pos) + " >-< " +
+                              str(self.starting_pos + 6))
 
 
 if __name__ == "__main__":

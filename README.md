@@ -4,18 +4,17 @@ After a succesfull rebrand I no longer compare prices of flights. This is now an
 
 The application should:
 - Show all the prices for a specific category of items.
-- Sort items throught a filter (by name, by trader)
-- Save the search terms/combination of cities. 
-  - There should already be a list of cities saved somewhere. (dropdown menu)
-- A menu with item that the user wants to save.
+- Sort items throught a filter (by name, by category)
+- A menu with item that the user saved.
   - With a star, bookmark or like button next to the item information.
   - The item should contain following data: 
-    - image, 
-    - name, 
-    - current price avg, 
-    - all time max/min, 
-    - how much more exepnsive it got, 
+    - image (optional)
+    - name
+    - current price avg
+    - price per slot
+    - how much more exepnsive it got
     - which trader sells this item.
+    - how much the traders offers for an item
 - Whenever the user checks on the saved items the application searches for it again and updates the price acordingly.
 - Run application in the background to keep track of lowest and highest prices.
 
