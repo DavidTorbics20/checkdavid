@@ -2,7 +2,7 @@
 
 import sqlalchemy as sql
 from downloader import Downloader
-from models import ActiveEntries, Base, Categories, Entries
+from models import ActiveEntries, Base, Categories, Entries, Bookmarked
 from sqlalchemy.orm import sessionmaker
 
 
@@ -11,7 +11,7 @@ class TableManagement():
 
         self.category = category.lower().replace(" ", "_")
 
-        engine = sql.create_engine("sqlite:///database/database.db", echo=True)
+        engine = sql.create_engine("sqlite:///database/database.db", echo=False)
         Base.metadata.create_all(bind=engine)
 
         Session = sessionmaker(bind=engine)
@@ -22,7 +22,7 @@ class TableManagement():
         url_extension = "tag/" + self.category.lower().replace(" ", "_")
         downloader = Downloader(url_extension)
         downloader.get_page_content()
-        extracted_valued = downloader.extract_values()
+        extracted_valued = downloader.extract_values("webpage.html")
 
         category_id = self.get_category_id()
 
@@ -161,5 +161,45 @@ class TableManagement():
             if entry is not None:
                 current_values.append(entry)
             counter += 1
+
+        if current_values.__len__() < 7:
+            while current_values.__len__() < 7:
+                current_values.append([])
+
+        return current_values
+
+    def add_item_to_bookmark(self, item_name):
+        print(item_name)
+        item = self.session.query(Entries).filter_by(item_name=item_name).first()
+        item_count = self.session.query(Bookmarked).filter_by(entry_id=item.id).count()
+
+        if item_count > 0:
+            return
+        bookmark = Bookmarked(entry_id=item.id)
+        self.session.add(bookmark)
+        self.session.commit()
+
+    def get_bookmarked_entries(self, starting_pos, item_name_snippet):
+        current_values = []
+        counter = 0
+        item_name_snippet = str("%" + item_name_snippet + "%")
+
+        all_ids = self.session.query(Bookmarked).all()
+
+        # this_category_id = self.get_category_id()
+        max_entries = self.session.query(Bookmarked).count()
+        if starting_pos > max_entries:
+            starting_pos = max_entries - 7
+
+        while current_values.__len__() < 7 and starting_pos + counter < max_entries:
+            for item in all_ids:
+                entry = self.session.query(Entries).filter_by(id=item.id).first()
+                if entry is not None:
+                    current_values.append(entry)
+                counter += 1
+
+        if current_values.__len__() < 7:
+            while current_values.__len__() < 7:
+                current_values.append([])
 
         return current_values

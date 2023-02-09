@@ -72,7 +72,7 @@ class Downloader():
         driver.quit()
         print("Finished download")
 
-    def extract_values(self):
+    def extract_values(self, filename):
 
         position = 2
 
@@ -84,11 +84,9 @@ class Downloader():
         trader_prices = []
         trader_names = []
 
-        with open('webpage.html', 'r') as f:
+        with open(filename, 'r') as f:
             soup = BS(f.read(), "html.parser")
             dom = etree.HTML(str(soup))
-
-            print()
 
             while True:
                 if dom.xpath("/html/body/div/div/div/div/div[2]/" +
@@ -125,7 +123,7 @@ class Downloader():
 
         return extracted_values
 
-    def get_values_from_extraction(self, intX, item):
+    def get_values_from_extraction(self, item):
         """
         There is a problem with the name where it
         sometimes just does not parse correctly."""
@@ -160,14 +158,14 @@ class Downloader():
         # for the trader_name use item[6]
         trader_name = item[6][0].text
 
-        print(str(intX + 1) +
-              " : " + str(name) +
-              ' | ' + unsigned + " ₽" +
-              ' | ' + str(slot_price) + " ₽" +
-              ' | ' + h_change +
-              ' | ' + d_change +
-              ' | ' + trader_name +
-              ' | ' + trader_price + " ₽")
+        # print(str(intX + 1) +
+        #       " : " + str(name) +
+        #       ' | ' + unsigned + " ₽" +
+        #       ' | ' + str(slot_price) + " ₽" +
+        #       ' | ' + h_change +
+        #       ' | ' + d_change +
+        #       ' | ' + trader_name +
+        #       ' | ' + trader_price + " ₽")
 
         refined_values = (str(name),
                           unsigned + " ₽",

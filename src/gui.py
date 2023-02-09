@@ -44,6 +44,7 @@ class GUI():
         ]
 
         self.starting_pos = 1
+        self.in_bookmarked = False
 
     def show_category(self):
         category = self.clicked.get()
@@ -64,8 +65,6 @@ class GUI():
         drop_menu.grid(column=4, row=0, sticky=tk.EW, padx=5, pady=5)
         self.category_label = ttk.Label(self.root, text=" ")
 
-        # self.clicked.trace('w', self.change_shown_category)
-
         search_btn = tk.Button(self.root, text="Search", command=self.change_shown_category,
                                width=15, height=3)
         search_btn.grid(column=5, row=0, sticky=tk.W, padx=5, pady=5)
@@ -80,7 +79,9 @@ class GUI():
         tk_image = tk.PhotoImage(file=r'C:\\Users\\torbi\\source\\repos\\SchoolRepos\\' +
                                  '2022-2023\\INSY-SEW\\checkdavid\\' +
                                  'media\\bookmark-icon2.png')
-        bookmark_btn = tk.Button(self.root, text="aaa", image=tk_image, width=50, height=50)
+        bookmark_btn = tk.Button(self.root, text="aaa",
+                                 command=self.show_bookmarked_items,
+                                 image=tk_image, width=50, height=50)
         bookmark_btn.image = tk_image
         bookmark_btn.grid(column=7, row=0, sticky=tk.W, padx=5, pady=5)
 
@@ -99,8 +100,6 @@ class GUI():
                                        width=15, height=3)
         previouse_page_btn.grid(column=2, row=2, sticky=tk.E, padx=5, pady=5)
 
-        # The row with the page scroll buttons
-
     def show_items_from_db(self, current_values):
         # Temporarily the image is the same for every item
         tk_image = tk.PhotoImage(file=r'C:\\Users\\torbi\\source\\repos\\SchoolRepos\\' +
@@ -115,12 +114,16 @@ class GUI():
         trader_name = "t_n"
         trader_price = "t_p"
 
+        current_names = []
+        current_names.clear()
+
         # get item with the according to the current i value + the page counter min
         for i, item in enumerate(current_values):
 
             i = i + 1
 
-            try:
+            if item != []:
+                current_names.append(item.item_name)
                 search_btn = tk.Label(self.root, text="Image", background='gray79', image=tk_image)
                 search_btn.grid(column=2, row=1 + 2 * i + (i - 1), rowspan=3, sticky=tk.NSEW,
                                 padx=5, pady=5)
@@ -130,32 +133,35 @@ class GUI():
                                padx=2, pady=5)
                 item_name.config(text=item.item_name)
 
-                item_name = tk.Label(self.root, text=price,
-                                     font=("", 10), background='green')
-                item_name.grid(column=3, row=2 + 2 * i + (i - 1), sticky=tk.NSEW, padx=2, pady=2)
-                item_name.config(text=item.price)
+                item_price = tk.Label(self.root, text=price,
+                                      font=("", 10), background='green')
+                item_price.grid(column=3, row=2 + 2 * i + (i - 1), sticky=tk.NSEW, padx=2, pady=2)
+                item_price.config(text=item.price)
 
-                item_name = tk.Label(self.root, text=pps,
-                                     font=("", 10), background='light blue')
-                item_name.grid(column=4, row=2 + 2 * i + (i - 1), sticky=tk.NSEW, padx=2, pady=2)
-                item_name.config(text=item.price_per_slot)
+                item_pps = tk.Label(self.root, text=pps,
+                                    font=("", 10), background='light blue')
+                item_pps.grid(column=4, row=2 + 2 * i + (i - 1), sticky=tk.NSEW, padx=2, pady=2)
+                item_pps.config(text=item.price_per_slot)
 
-                item_name = tk.Label(self.root, text=change,
-                                     font=("", 10), background='yellow')
-                item_name.grid(column=5, row=2 + 2 * i + (i - 1), sticky=tk.NSEW, padx=2, pady=2)
-                item_name.config(text=str(item.h_change + " / " + item.d_change))
+                item_hdc = tk.Label(self.root, text=change,
+                                    font=("", 10), background='yellow')
+                item_hdc.grid(column=5, row=2 + 2 * i + (i - 1), sticky=tk.NSEW, padx=2, pady=2)
+                item_hdc.config(text=str(item.h_change + " / " + item.d_change))
 
-                item_name = tk.Label(self.root, text=trader_name,
-                                     font=("", 10), background='yellow')
-                item_name.grid(column=3, row=3 + 2 * i + (i - 1), sticky=tk.NSEW, padx=2, pady=2)
-                item_name.config(text=item.trader_price)
+                item_tp = tk.Label(self.root, text=trader_name,
+                                   font=("", 10), background='yellow')
+                item_tp.grid(column=3, row=3 + 2 * i + (i - 1), sticky=tk.NSEW, padx=2, pady=2)
+                item_tp.config(text=item.trader_price)
 
-                item_name = tk.Label(self.root, text=trader_price,
-                                     font=("", 10), background='yellow')
-                item_name.grid(column=4, row=3 + 2 * i + (i - 1), sticky=tk.NSEW, padx=2, pady=2)
-                item_name.config(text=item.trader_name)
-            except Exception:
-                print("hmmm...something went wrong")
+                item_tn = tk.Label(self.root, text=trader_price,
+                                   font=("", 10), background='yellow')
+                item_tn.grid(column=4, row=3 + 2 * i + (i - 1), sticky=tk.NSEW, padx=2, pady=2)
+                item_tn.config(text=item.trader_name)
+
+        if self.in_bookmarked is True:
+            self.show_remove_buttons(current_names)
+        else:
+            self.show_bookmark_buttons(current_names)
 
     def refresh_selection(self):
         """
@@ -217,6 +223,57 @@ class GUI():
         self.table_manager = TM(self.show_category())
         current_page_values = self.table_manager.get_current_page_values(1,
                                                                          self.user_input.get())
+        if current_page_values != []:
+            self.show_items_from_db(current_page_values)
+            self.pages.config(text=str(self.starting_pos) + " >-< " +
+                              str(self.starting_pos + 6))
+
+    def add_item_to_bookmark(self, item_name):
+        self.table_manager.add_item_to_bookmark(item_name)
+
+    def show_remove_buttons(self, current_names):
+        pass
+
+    def show_bookmark_buttons(self, current_names):
+
+        bookmark_btn = tk.Button(self.root, text="bookmark",
+                                 command=lambda: self.add_item_to_bookmark(current_names[0]),
+                                 font=("", 8), background='light blue')
+        bookmark_btn.grid(column=6, row=3, sticky=tk.W)
+
+        bookmark_btn = tk.Button(self.root, text="bookmark",
+                                 command=lambda: self.add_item_to_bookmark(current_names[1]),
+                                 font=("", 8), background='light blue')
+        bookmark_btn.grid(column=6, row=6, sticky=tk.W)
+
+        bookmark_btn = tk.Button(self.root, text="bookmark",
+                                 command=lambda: self.add_item_to_bookmark(current_names[2]),
+                                 font=("", 8), background='light blue')
+        bookmark_btn.grid(column=6, row=9, sticky=tk.W)
+
+        bookmark_btn = tk.Button(self.root, text="bookmark",
+                                 command=lambda: self.add_item_to_bookmark(current_names[3]),
+                                 font=("", 8), background='light blue')
+        bookmark_btn.grid(column=6, row=12, sticky=tk.W)
+
+        bookmark_btn = tk.Button(self.root, text="bookmark",
+                                 command=lambda: self.add_item_to_bookmark(current_names[4]),
+                                 font=("", 8), background='light blue')
+        bookmark_btn.grid(column=6, row=15, sticky=tk.W)
+
+        bookmark_btn = tk.Button(self.root, text="bookmark",
+                                 command=lambda: self.add_item_to_bookmark(current_names[5]),
+                                 font=("", 8), background='light blue')
+        bookmark_btn.grid(column=6, row=18, sticky=tk.W)
+
+        bookmark_btn = tk.Button(self.root, text="bookmark",
+                                 command=lambda: self.add_item_to_bookmark(current_names[6]),
+                                 font=("", 8), background='light blue')
+        bookmark_btn.grid(column=6, row=21, sticky=tk.W)
+
+    def show_bookmarked_items(self):
+        current_page_values = self.table_manager.get_bookmarked_entries(1,
+                                                                        self.user_input.get())
         if current_page_values != []:
             self.show_items_from_db(current_page_values)
             self.pages.config(text=str(self.starting_pos) + " >-< " +

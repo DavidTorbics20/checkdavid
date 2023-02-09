@@ -12,13 +12,13 @@ Category, URL
 
 ## Internal state chage 
 
-The data from the websites is scraped and saved into a variable.
+The data from the websites is scraped and saved into a file.
 
-! Scraoe the data in chunks to make the lookup faster !
+! Scrape the data in chunks to make the lookup faster !
 
 ## Output
 
-Variable is filled with data.
+File is filled with data.
 
 ## Errors
 
