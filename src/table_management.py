@@ -1,8 +1,8 @@
 """Insert the values that were downloaded."""
 
 import sqlalchemy as sql
-from downloader import Downloader
-from models import ActiveEntries, Base, Categories, Entries, Bookmarked
+from src.downloader import Downloader
+from src.models import ActiveEntries, Base, Categories, Entries, Bookmarked
 from sqlalchemy.orm import sessionmaker
 
 
@@ -128,10 +128,7 @@ class TableManagement():
             self.session.commit()
 
     def get_current_page_values(self, starting_pos, item_name_snippet):
-        current_values = []
-        starting_pos -= 1
         item_name_snippet = str("%" + item_name_snippet + "%")
-        counter = 0
 
         category_id = self.get_category_id()
 
@@ -141,31 +138,14 @@ class TableManagement():
         # At first active_category is always None so I have to do it separately
         if active_category is not None:
             active_category = active_category.category_id
-        if category_id != active_category:
-            self.create_active_entries()
+        # with this the lag while scrolling "next" and "previous" is gone
+        # if category_id != active_category:
+        self.create_active_entries()
         database = self.session.query(Entries).filter_by(category_id=category_id).first()
         if database is None:
-            return current_values
+            return []
 
-        # this_category_id = self.get_category_id()
-        max_entries = self.session.query(ActiveEntries) \
-            .filter(ActiveEntries.item_name.like(item_name_snippet)).count()
-
-        if starting_pos > max_entries:
-            starting_pos = max_entries - 7
-
-        while current_values.__len__() < 7 and starting_pos + counter < max_entries:
-            entry = self.session.query(ActiveEntries) \
-                .filter(ActiveEntries.id == starting_pos + counter,
-                        ActiveEntries.item_name.like(item_name_snippet)).first()
-            if entry is not None:
-                current_values.append(entry)
-            counter += 1
-
-        if current_values.__len__() < 7:
-            while current_values.__len__() < 7:
-                current_values.append([])
-
+        current_values = self.insert_into_active_entries(starting_pos, item_name_snippet)
         return current_values
 
     def add_item_to_bookmark(self, item_name):
@@ -179,27 +159,60 @@ class TableManagement():
         self.session.add(bookmark)
         self.session.commit()
 
+    def remove_item_from_bookmark(self, item_name):
+        print("removed: " + item_name)
+        item = self.session.query(Entries).filter_by(item_name=item_name).first()
+        self.session.query(Bookmarked).filter_by(entry_id=item.id).delete()
+        self.session.commit()
+
     def get_bookmarked_entries(self, starting_pos, item_name_snippet):
-        current_values = []
-        counter = 0
         item_name_snippet = str("%" + item_name_snippet + "%")
 
         all_ids = self.session.query(Bookmarked).all()
+        self.session.query(ActiveEntries).delete()
 
         # this_category_id = self.get_category_id()
         max_entries = self.session.query(Bookmarked).count()
         if starting_pos > max_entries:
             starting_pos = max_entries - 7
 
-        while current_values.__len__() < 7 and starting_pos + counter < max_entries:
-            for item in all_ids:
-                entry = self.session.query(Entries).filter_by(id=item.id).first()
-                if entry is not None:
-                    current_values.append(entry)
-                counter += 1
+        for item in all_ids:
+            entry = self.session.query(Entries).filter_by(id=item.entry_id).first()
+            active_entry = ActiveEntries(category_id=entry.category_id,
+                                         item_name=entry.item_name,
+                                         price=entry.price,
+                                         price_per_slot=entry.price_per_slot,
+                                         h_change=entry.h_change,
+                                         d_change=entry.d_change,
+                                         trader_price=entry.trader_price,
+                                         trader_name=entry.trader_name)
+            self.session.add(active_entry)
+            self.session.commit()
 
-        if current_values.__len__() < 7:
-            while current_values.__len__() < 7:
-                current_values.append([])
+        current_values = self.insert_into_active_entries(starting_pos, item_name_snippet)
+        return current_values
+
+    def insert_into_active_entries(self, starting_pos, item_name_snippet):
+        starting_pos -= 1
+        current_values = []
+        counter = 0
+
+        # this_category_id = self.get_category_id()
+        max_entries = self.session.query(ActiveEntries) \
+            .filter(ActiveEntries.item_name.like(item_name_snippet)).count()
+
+        if starting_pos > max_entries:
+            starting_pos = max_entries - 7
+
+        while current_values.__len__() < 7 and starting_pos + counter <= max_entries:
+            entry = self.session.query(ActiveEntries) \
+                .filter(ActiveEntries.id == starting_pos + counter,
+                        ActiveEntries.item_name.like(item_name_snippet)).first()
+            if entry is not None:
+                current_values.append(entry)
+            counter += 1
+
+        while current_values.__len__() < 7:
+            current_values.append([])
 
         return current_values
